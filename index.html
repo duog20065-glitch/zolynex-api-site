@@ -309,6 +309,103 @@ footer.site .wrap{display:grid;gap:20px}
   .faq details p{padding-right:0}
   .consent{flex-direction:column;align-items:stretch}
 }
+/* "Show all" for the catalog exists only on phones (see renderModels) */
+.show-all{display:none}
+
+/* ---- phone layout: tighter rhythm, icon-left rows instead of tall stacked cards ---- */
+@media (max-width:720px){
+  section{padding:48px 0}
+  #why{padding-top:24px}
+  h2{font-size:28px}
+  .eyebrow{font-size:12px;margin-bottom:10px}
+  .lead{font-size:16px;margin-top:12px}
+
+  .nav .wrap{height:56px}
+  .logo-mark{width:28px;height:28px}
+  .lang{height:34px;padding:0 11px}
+  .nav .btn-sm{height:34px;font-size:13px}
+
+  .hero{padding:40px 0 44px}
+  .pill{font-size:12px;padding:5px 12px;margin-bottom:20px}
+  .hero h1{font-size:38px;line-height:1.06}
+  .hero .lead{font-size:16px;margin-top:16px}
+  .cta-row{margin-top:28px;gap:10px}
+  .cta-row .btn-lg{height:54px;font-size:17px}
+  .cta-row .btn-ghost{height:46px}
+  .stats{margin-top:36px;padding:0 14px}
+  .stat{padding:14px 10px 14px 0}
+  .stat b{font-size:22px}
+  .stat span{font-size:12px;line-height:1.4;display:block}
+
+  #flagship{padding-top:8px}
+  .spot-grid{margin-top:24px;gap:14px}
+  .spot{padding:20px}
+  .spot::before{left:20px;right:20px}
+  .spot-top img{width:44px;height:44px;border-radius:12px}
+  .spot-kicker{font-size:12px}
+  .spot h3{font-size:21px}
+  .spot p{font-size:14.5px;margin-top:14px}
+  .spot ul{margin-top:12px;gap:6px}
+  .spot li{font-size:13.5px}
+  /* model IDs: one swipeable row instead of a tall stack */
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:16px -20px 0;padding:0 20px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 28px),transparent);
+            mask-image:linear-gradient(90deg,transparent,#000 20px,#000 calc(100% - 28px),transparent)}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;font-size:11.5px;padding:6px 8px}
+  .spot .btn{margin-top:18px;height:46px}
+
+  .features{margin-top:28px;gap:10px}
+  .feature{display:grid;grid-template-columns:40px 1fr;column-gap:14px;padding:16px 18px}
+  .feature .ic{width:40px;height:40px;margin:0;grid-row:span 2;border-radius:11px}
+  .feature .ic svg{width:20px;height:20px}
+  .feature h3{font-size:16px;margin:0 0 4px;line-height:1.3;align-self:center}
+  .feature p{font-size:14px;line-height:1.55}
+  .perks{margin-top:10px;gap:10px}
+  .perk{padding:14px 18px}
+  .perk b{font-size:15px;margin-bottom:2px}
+  .perk p{font-size:13.5px}
+
+  .models-head{gap:14px}
+  .tabs{margin-top:22px;gap:6px}
+  .tab{height:34px;padding:0 12px;font-size:13px}
+  .tab span{margin-left:4px}
+  .grid{margin-top:14px;gap:10px}
+  .grid.collapsed .model:nth-child(n+9){display:none}
+  .model{padding:14px 16px}
+  .m-top{gap:10px}
+  .m-icon{width:34px;height:34px;border-radius:9px}
+  .m-name{font-size:13.5px}
+  .m-vendor{font-size:12px}
+  .badge{font-size:10px;padding:2px 6px}
+  .m-desc{font-size:13.5px;margin-top:10px;-webkit-line-clamp:2}
+  .more{font-size:12.5px;margin-top:4px}
+  .m-foot{padding-top:10px}
+  .tag{font-size:11.5px;padding:2px 8px}
+  .show-all:not([hidden]){display:flex;width:100%;margin-top:12px;height:46px}
+  .models-note{margin-top:16px;font-size:12px}
+
+  .code-wrap{gap:28px}
+  .steps{margin-top:22px;gap:14px}
+  .steps p{font-size:14px}
+  .steps strong{font-size:15px}
+  .code-tab{height:40px;padding:0 12px}
+  pre{padding:16px;font-size:12px;line-height:1.7}
+  pre .hl{width:calc(100% + 32px);margin:0 -16px;padding:0 16px}
+
+  .faq-wrap{gap:24px}
+  .faq summary{padding:16px 0;font-size:15.5px;gap:16px}
+  .faq details p{font-size:14px;padding-bottom:16px}
+
+  .channels{margin-top:28px;gap:10px}
+  .channel{display:grid;grid-template-columns:28px 1fr;column-gap:14px;row-gap:0;padding:14px 18px;align-items:center}
+  .channel svg{width:24px;height:24px;margin:0;grid-row:span 3}
+  .channel b{font-size:15px}
+  .channel span{font-size:14px}
+  .channel small{font-size:12px;margin-top:2px}
+
+  footer.site{padding-top:28px}
+}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
@@ -439,6 +536,7 @@ footer.site .wrap{display:grid;gap:20px}
       </div>
       <div class="tabs" role="tablist" aria-label="Model category" id="tabs"></div>
       <div class="grid" id="grid" role="tabpanel"></div>
+      <button class="btn btn-ghost show-all" id="showAll" hidden></button>
       <p class="models-note" data-i18n="models.note">Model names and logos belong to their respective owners.</p>
     </div>
   </section>
@@ -884,7 +982,7 @@ const I18N = {
     'models.eyebrow':'模型目录','models.title':'一个 Key，调用所有主流中国模型。','models.cta':'申请新模型',
     'models.note':'模型名称与图标归各自所有者所有。',
     'tab.all':'全部','tab.text':'文本','tab.image':'图片','tab.video':'视频',
-    'more':'展开','less':'收起',
+    'more':'展开','less':'收起','showAll':'显示全部 {n} 个模型',
     'badge.hot':'热门','badge.new':'新增','badge.rec':'推荐',
     'code.eyebrow':'接入方式','code.title':'改两行代码，迁移完成。',
     'code.s1t':'获取 API Key','code.s1':'联系我们，当天发放 API Key 和接口地址。',
@@ -912,7 +1010,7 @@ const I18N = {
   },
   en: {
     'tab.all':'All','tab.text':'Text','tab.image':'Image','tab.video':'Video',
-    'getAccess':'Get access →','more':'Read more','less':'Show less',
+    'getAccess':'Get access →','more':'Read more','less':'Show less','showAll':'Show all {n} models',
     'badge.hot':'Popular','badge.new':'New','badge.rec':'Featured',
     'copied':'Copied','contact.waOpen':'Tap to open chat','contact.waHint':'Tap to copy username'
   }
@@ -992,7 +1090,9 @@ $('#langToggle').addEventListener('click', () => { lang = lang === 'zh' ? 'en' :
 
 /* ---------- models ---------- */
 const cat = m => m.tags.includes('视频') ? 'video' : m.tags.some(x => ['文生图','图生图','图片'].includes(x)) ? 'image' : 'text';
-let currentCat = 'all';
+let currentCat = 'all', showAll = false;
+// Phones show the first 8 cards plus a "Show all" button (CSS hides the rest only under 720px)
+const PHONE_LIMIT = 8;
 function renderTabs(){
   const counts = {all:MODELS.length, text:0, image:0, video:0};
   MODELS.forEach(m => counts[cat(m)]++);
@@ -1001,7 +1101,7 @@ function renderTabs(){
 }
 $('#tabs').addEventListener('click', e => {
   const b = e.target.closest('.tab'); if(!b) return;
-  currentCat = b.dataset.cat; renderTabs(); renderModels();
+  currentCat = b.dataset.cat; showAll = false; renderTabs(); renderModels();
 });
 function renderModels(){
   const list = MODELS.filter(m => currentCat === 'all' || cat(m) === currentCat);
@@ -1018,8 +1118,13 @@ function renderModels(){
       <div class="m-foot">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join('')}${get}</div>
     </article>`;
   }).join('');
+  const collapsed = !showAll && list.length > PHONE_LIMIT;
+  $('#grid').classList.toggle('collapsed', collapsed);
+  $('#showAll').hidden = !collapsed;
+  $('#showAll').textContent = t('showAll').replace('{n}', list.length);
   $('#grid').querySelectorAll('.m-desc').forEach(p => { if (p.scrollHeight > p.clientHeight + 2) p.nextElementSibling.hidden = false; });
 }
+$('#showAll').addEventListener('click', () => { showAll = true; renderModels(); });
 $('#grid').addEventListener('click', e => {
   const b = e.target.closest('.more'); if(!b) return;
   const card = b.closest('.model'); card.classList.toggle('open');
