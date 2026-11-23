@@ -20,7 +20,9 @@ const check = (name, ok, detail = '') => {
 function leakCheck(name, res, text) {
   const extra = [...res.headers.keys()].filter((h) => !ALLOWED_HEADERS.has(h));
   check(`${name}: no unexpected headers`, extra.length === 0, extra.join(', '));
-  const hay = (JSON.stringify([...res.headers]) + text).toLowerCase();
+  // Cloudflare's own nel/report-to/cf-ray values are random strings and can match short words by chance.
+  const ownHeaders = [...res.headers].filter(([h]) => !['report-to', 'nel', 'cf-ray'].includes(h));
+  const hay = (JSON.stringify(ownHeaders) + text).toLowerCase();
   const hits = leakWords.filter((w) => hay.includes(w));
   check(`${name}: no upstream identifiers`, hits.length === 0, hits.join(', '));
   if (res.headers.get('server') && res.headers.get('server') !== 'cloudflare') check(`${name}: server header`, false, res.headers.get('server'));
@@ -40,14 +42,14 @@ async function call(name, { auth = key, body }) {
 const msg = [{ role: 'user', content: 'Reply with the single word: pong' }];
 
 {
-  const { res, text } = await call('non-stream', { body: { model, messages: msg, max_tokens: 16 } });
+  const { res, text } = await call('non-stream', { body: { model, messages: msg, max_tokens: 64 } });
   let j = {};
   try { j = JSON.parse(text); } catch {}
   check('non-stream: 200 + content', res.status === 200 && typeof j.choices?.[0]?.message?.content === 'string', `status ${res.status} ${text.slice(0, 200)}`);
   console.log('      reply:', JSON.stringify(j.choices?.[0]?.message?.content), 'usage:', JSON.stringify(j.usage));
 }
 {
-  const { res, text } = await call('stream', { body: { model, messages: msg, max_tokens: 16, stream: true, stream_options: { include_usage: true } } });
+  const { res, text } = await call('stream', { body: { model, messages: msg, max_tokens: 64, stream: true, stream_options: { include_usage: true } } });
   const events = text.split('\n').filter((l) => l.startsWith('data:'));
   const content = events.map((l) => { try { return JSON.parse(l.slice(5)).choices?.[0]?.delta?.content || ''; } catch { return ''; } }).join('');
   check('stream: 200 + event-stream', res.status === 200 && (res.headers.get('content-type') || '').includes('text/event-stream'), `status ${res.status}`);

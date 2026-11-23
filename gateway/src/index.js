@@ -100,14 +100,18 @@ async function handle(request, env, requestId) {
 
   const headers = cleanHeaders(upstream.headers, requestId);
 
+  // Successful completions are passed through byte-for-byte: `model`, `id`,
+  // `usage` and content are exactly what the upstream returned. Per the OpenAI /
+  // DeepSeek API references, response `model` is "the model used for the chat
+  // completion", so the gateway must not rewrite it. Only headers and error
+  // objects are replaced.
   if (stream && upstream.body) {
     headers.set('content-type', 'text/event-stream; charset=utf-8');
     headers.set('cache-control', 'no-cache');
-    return new Response(upstream.body.pipeThrough(sseScrubStream(scrub)), { status: 200, headers });
+    return new Response(upstream.body.pipeThrough(sseErrorStream(scrub)), { status: 200, headers });
   }
 
-  const text = await upstream.text();
-  return new Response(scrub(text), { status: upstream.status, headers });
+  return new Response(upstream.body, { status: upstream.status, headers });
 }
 
 // --- auth ---
@@ -164,9 +168,9 @@ function makeScrubber(env) {
   };
 }
 
-// Line-buffered SSE pass-through that redacts upstream identifiers and
-// rewrites any in-stream error event into our own error shape.
-function sseScrubStream(scrub) {
+// Line-buffered SSE pass-through. Normal chunks are forwarded unchanged; only an
+// in-stream error event is rewritten into our own (redacted) error shape.
+function sseErrorStream(scrub) {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
   let buffer = '';
@@ -183,7 +187,7 @@ function sseScrubStream(scrub) {
         } catch {}
       }
     }
-    return scrub(line);
+    return line;
   };
 
   return new TransformStream({
