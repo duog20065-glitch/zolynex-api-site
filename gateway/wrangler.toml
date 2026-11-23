@@ -1,0 +1,19 @@
+name = "flashgate-gateway"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+# workers.dev stays on during the private beta so the gateway can be tested
+# before the api subdomain is proxied through Cloudflare. Turn off after.
+workers_dev = true
+preview_urls = false
+
+# Only /v1/* goes to the Worker; the rest of api.zolynexstudio.com stays the landing page.
+routes = [
+  { pattern = "api.zolynexstudio.com/v1/*", zone_name = "zolynexstudio.com" }
+]
+
+[observability]
+enabled = true
+
+# Secrets (set with `npx wrangler secret put NAME`, never committed):
+#   UPSTREAM_BASE_URL, UPSTREAM_API_KEY, GATEWAY_TEST_KEY, UPSTREAM_SCRUB (optional)
