@@ -20,6 +20,7 @@ const CORS = {
   'access-control-allow-methods': 'POST, OPTIONS',
   'access-control-allow-headers': 'authorization, content-type, x-api-key',
   'access-control-max-age': '86400',
+  'access-control-expose-headers': 'x-request-id',
 };
 
 export default {
