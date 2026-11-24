@@ -17,3 +17,9 @@ enabled = true
 
 # Secrets (set with `npx wrangler secret put NAME`, never committed):
 #   UPSTREAM_BASE_URL, UPSTREAM_API_KEY, GATEWAY_TEST_KEY, UPSTREAM_SCRUB (optional)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "haru-api"
+database_id = "e9b357d7-6a13-46d9-8b59-cc56f225cf90"
+migrations_dir = "migrations"

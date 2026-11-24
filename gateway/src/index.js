@@ -6,10 +6,14 @@
 // Secrets:
 //   UPSTREAM_BASE_URL  e.g. https://upstream.example.com/v1
 //   UPSTREAM_API_KEY   upstream bearer key
-//   GATEWAY_TEST_KEY   keys issued to beta customers, comma-separated; each entry is
-//                      `customer=key`, `customer=key=upstreamKey` (customer has a
-//                      dedicated upstream key) or a bare key. Managed by the local key tool.
+//   DATA_KEY           base64 AES-256 key encrypting stored customer/upstream keys
+//   ADMIN_TOKEN        bearer token for the /admin API (workers.dev host only)
 //   UPSTREAM_SCRUB     optional, comma-separated extra words to redact from responses
+//
+// Customers and their keys live in D1 (binding DB); see store.js and admin.js.
+
+import { lookupKey } from './store.js';
+import { handleAdmin } from './admin.js';
 
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
 
@@ -40,6 +44,14 @@ export default {
 async function handle(request, env, requestId) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, '');
+
+  // Admin API only on the workers.dev hostname, never on the customer-facing domain.
+  if (path === '/admin' || path.startsWith('/admin/')) {
+    if (!url.hostname.endsWith('.workers.dev')) {
+      return errorResponse(404, `Unknown endpoint: ${request.method} ${path}`, 'invalid_request_error', 'not_found', requestId);
+    }
+    return handleAdmin(request, env, url);
+  }
 
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
 
@@ -125,26 +137,13 @@ async function handle(request, env, requestId) {
 
 // --- auth ---
 
-// Returns { customer, upstreamKey } for a valid key, or null. customer is '' for an
-// unlabelled key; upstreamKey is '' when the customer uses the shared upstream key.
+// Returns { customerId, customer, upstreamKey } for a valid key, or null.
+// upstreamKey is '' when the customer uses the shared upstream key.
 async function authorize(request, env) {
   const auth = request.headers.get('authorization') || '';
   const given = (auth.match(/^Bearer\s+(.+)$/i)?.[1] || request.headers.get('x-api-key') || '').trim();
-  if (!given || !env.GATEWAY_TEST_KEY) return null;
-  const entries = env.GATEWAY_TEST_KEY.split(',').map((e) => e.trim()).filter(Boolean);
-  const givenHash = await sha256(given);
-  let match = null;
-  for (const entry of entries) {
-    const parts = entry.split('=').map((p) => p.trim());
-    const [label, key, upstreamKey] = parts.length === 1 ? ['', parts[0], ''] : [parts[0], parts[1], parts[2] || ''];
-    // Compare fixed-length digests so timing does not reveal key length or prefix.
-    if (crypto.subtle.timingSafeEqual(givenHash, await sha256(key)) && match === null) match = { customer: label, upstreamKey };
-  }
-  return match;
-}
-
-async function sha256(s) {
-  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  if (!given || given.length > 200 || !env.DB) return null;
+  return lookupKey(env, given);
 }
 
 // --- response sanitising ---
