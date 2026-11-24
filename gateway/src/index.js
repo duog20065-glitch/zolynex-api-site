@@ -7,7 +7,8 @@
 //   UPSTREAM_BASE_URL  e.g. https://upstream.example.com/v1
 //   UPSTREAM_API_KEY   upstream bearer key
 //   GATEWAY_TEST_KEY   keys issued to beta customers, comma-separated; each entry is
-//                      `customer=key` (or a bare key). Managed by the local key tool.
+//                      `customer=key`, `customer=key=upstreamKey` (customer has a
+//                      dedicated upstream key) or a bare key. Managed by the local key tool.
 //   UPSTREAM_SCRUB     optional, comma-separated extra words to redact from responses
 
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
@@ -49,12 +50,14 @@ async function handle(request, env, requestId) {
     return errorResponse(405, 'Use POST for this endpoint.', 'invalid_request_error', 'method_not_allowed', requestId);
   }
 
-  const customer = await authorize(request, env);
-  if (customer === null) {
+  const auth = await authorize(request, env);
+  if (auth === null) {
     return errorResponse(401, 'Invalid API key.', 'invalid_request_error', 'invalid_api_key', requestId);
   }
+  const { customer } = auth;
+  const upstreamKey = auth.upstreamKey || env.UPSTREAM_API_KEY;
 
-  if (!env.UPSTREAM_BASE_URL || !env.UPSTREAM_API_KEY) {
+  if (!env.UPSTREAM_BASE_URL || !upstreamKey) {
     console.error(JSON.stringify({ requestId, stage: 'config', error: 'upstream secrets missing' }));
     return errorResponse(503, 'Service temporarily unavailable.', 'server_error', 'service_unavailable', requestId);
   }
@@ -81,7 +84,7 @@ async function handle(request, env, requestId) {
     upstream = await fetch(upstreamUrl, {
       method: 'POST',
       headers: {
-        authorization: 'Bearer ' + env.UPSTREAM_API_KEY,
+        authorization: 'Bearer ' + upstreamKey,
         'content-type': 'application/json',
         accept: stream ? 'text/event-stream' : 'application/json',
       },
@@ -96,7 +99,7 @@ async function handle(request, env, requestId) {
   const scrub = makeScrubber(env);
   // Time until upstream response headers arrive (for streams: roughly time to first byte).
   const upstreamMs = Date.now() - upstreamStart;
-  console.log(JSON.stringify({ requestId, customer, model: body.model, stream, status: upstream.status, upstreamMs, colo: request.cf?.colo }));
+  console.log(JSON.stringify({ requestId, customer, dedicatedUpstream: !!auth.upstreamKey, model: body.model, stream, status: upstream.status, upstreamMs, colo: request.cf?.colo }));
 
   if (!upstream.ok) {
     const text = await upstream.text().catch(() => '');
@@ -122,7 +125,8 @@ async function handle(request, env, requestId) {
 
 // --- auth ---
 
-// Returns the customer label for a valid key ('' for an unlabelled key), or null.
+// Returns { customer, upstreamKey } for a valid key, or null. customer is '' for an
+// unlabelled key; upstreamKey is '' when the customer uses the shared upstream key.
 async function authorize(request, env) {
   const auth = request.headers.get('authorization') || '';
   const given = (auth.match(/^Bearer\s+(.+)$/i)?.[1] || request.headers.get('x-api-key') || '').trim();
@@ -131,11 +135,10 @@ async function authorize(request, env) {
   const givenHash = await sha256(given);
   let match = null;
   for (const entry of entries) {
-    const eq = entry.indexOf('=');
-    const label = eq >= 0 ? entry.slice(0, eq).trim() : '';
-    const key = eq >= 0 ? entry.slice(eq + 1).trim() : entry;
+    const parts = entry.split('=').map((p) => p.trim());
+    const [label, key, upstreamKey] = parts.length === 1 ? ['', parts[0], ''] : [parts[0], parts[1], parts[2] || ''];
     // Compare fixed-length digests so timing does not reveal key length or prefix.
-    if (crypto.subtle.timingSafeEqual(givenHash, await sha256(key)) && match === null) match = label;
+    if (crypto.subtle.timingSafeEqual(givenHash, await sha256(key)) && match === null) match = { customer: label, upstreamKey };
   }
   return match;
 }
