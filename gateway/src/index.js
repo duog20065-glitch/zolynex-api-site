@@ -74,6 +74,7 @@ async function handle(request, env, requestId) {
 
   const upstreamUrl = env.UPSTREAM_BASE_URL.replace(/\/+$/, '') + '/chat/completions';
   let upstream;
+  const upstreamStart = Date.now();
   try {
     upstream = await fetch(upstreamUrl, {
       method: 'POST',
@@ -91,7 +92,9 @@ async function handle(request, env, requestId) {
   }
 
   const scrub = makeScrubber(env);
-  console.log(JSON.stringify({ requestId, model: body.model, stream, status: upstream.status }));
+  // Time until upstream response headers arrive (for streams: roughly time to first byte).
+  const upstreamMs = Date.now() - upstreamStart;
+  console.log(JSON.stringify({ requestId, model: body.model, stream, status: upstream.status, upstreamMs, colo: request.cf?.colo }));
 
   if (!upstream.ok) {
     const text = await upstream.text().catch(() => '');
