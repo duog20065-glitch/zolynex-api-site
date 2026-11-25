@@ -7,13 +7,15 @@
 //   UPSTREAM_BASE_URL  e.g. https://upstream.example.com/v1
 //   UPSTREAM_API_KEY   upstream bearer key
 //   DATA_KEY           base64 AES-256 key encrypting stored customer/upstream keys
-//   ADMIN_TOKEN        bearer token for the /admin API (workers.dev host only)
 //   UPSTREAM_SCRUB     optional, comma-separated extra words to redact from responses
 //
-// Customers and their keys live in D1 (binding DB); see store.js and admin.js.
+// Customers and their keys live in D1 (binding DB). Management: AdminRPC (rpc.js) for
+// HaruSelf over a service binding, and /mcp (mcp.js) for AI tools; both use customers.js.
 
 import { lookupKey } from './store.js';
-import { handleAdmin } from './admin.js';
+import { handleMcp } from './mcp.js';
+
+export { AdminRPC } from './rpc.js';
 
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
 
@@ -33,7 +35,7 @@ export default {
   async fetch(request, env, ctx) {
     const requestId = 'req_' + crypto.randomUUID().replace(/-/g, '');
     try {
-      return await handle(request, env, requestId);
+      return await handle(request, env, ctx, requestId);
     } catch (err) {
       console.error(JSON.stringify({ requestId, stage: 'unhandled', error: String(err && err.stack || err) }));
       return errorResponse(500, 'Internal error.', 'server_error', 'internal_error', requestId);
@@ -41,17 +43,12 @@ export default {
   },
 };
 
-async function handle(request, env, requestId) {
+async function handle(request, env, ctx, requestId) {
   const url = new URL(request.url);
   const path = url.pathname.replace(/\/+$/, '');
 
-  // Admin API only on the workers.dev hostname, never on the customer-facing domain.
-  if (path === '/admin' || path.startsWith('/admin/')) {
-    if (!url.hostname.endsWith('.workers.dev')) {
-      return errorResponse(404, `Unknown endpoint: ${request.method} ${path}`, 'invalid_request_error', 'not_found', requestId);
-    }
-    return handleAdmin(request, env, url);
-  }
+  // MCP for AI tools, only on the workers.dev hostname, never on the customer-facing domain.
+  if (path === '/mcp' && url.hostname.endsWith('.workers.dev')) return handleMcp(request, env, ctx);
 
   if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
 
