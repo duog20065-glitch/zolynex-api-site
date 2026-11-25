@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FlashGate — Chinese AI Model APIs at Lower Prices | by Zolynex Studio</title>
-<meta name="description" content="OpenAI-compatible access to DeepSeek, Qwen, Kimi, GLM, MiniMax, Seedance, Seedream and more — up to 76% below official rates, with per-call usage records.">
+<meta name="description" content="OpenAI-compatible access to DeepSeek, Qwen, Kimi, GLM, MiniMax, Seedance, Seedream and more — up to 72% below official rates, with per-call usage records.">
 <meta name="theme-color" content="#0a0c0f">
 <link rel="canonical" href="https://api.zolynexstudio.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="FlashGate by Zolynex Studio">
 <meta property="og:image" content="https://api.zolynexstudio.com/icon-192.png">
 <meta property="og:title" content="FlashGate — Frontier Chinese AI models. Lower prices.">
-<meta property="og:description" content="28 text, image and video models through one OpenAI-compatible API. Up to 76% below official rates.">
+<meta property="og:description" content="28 text, image and video models through one OpenAI-compatible API. Up to 72% below official rates.">
 <meta property="og:url" content="https://api.zolynexstudio.com/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -26,11 +26,15 @@
 <script>
 /* =====================================================================
    CONFIG — edit this block only.
-   默认英文（defaultLang: 'en'），右上角保留中英切换按钮。
+   语言按访客浏览器自动选择：中文浏览器 → 中文 + 人民币；其他 → 英文 + 美元（参考价）。
+   右上角保留中英切换按钮，访客手动切换后会记住。
    ===================================================================== */
 window.ZX_CONFIG = {
-  defaultLang: 'en',            // 默认英文；访客可用右上角按钮切换中文
+  defaultLang: 'auto',          // 'auto' = 跟随浏览器语言；也可固定为 'en' / 'zh'
   showLangToggle: true,         // 中英切换按钮
+  // 美元参考价：页面会实时取汇率，取不到时用下面这个备用值（1 元人民币 = ? 美元）
+  usdPerCny: 0.1497,            // 2026-11-25 汇率
+  usdPerCnyDate: '2026-11-25',
   apiBaseUrl: '',                // 真实接口地址，如 'https://xxx.com/v1'；留空时示例显示 YOUR_BASE_URL
   email: 'contact@zolynexstudio.com',
   telegram: 'ZolyNexstudio',
@@ -210,6 +214,15 @@ h2{font-size:clamp(28px,4vw,40px);line-height:1.15;letter-spacing:-.02em;font-we
 .get{margin-left:auto;font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
 .get:hover{text-decoration:underline}
 .models-note{font-size:13px;color:var(--dim);margin-top:24px}
+.m-price{margin-top:auto;padding-top:16px;display:grid;gap:4px}
+.m-price + .m-foot{margin-top:0;padding-top:14px}
+.m-price div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:13px;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.07)}
+.m-price span{color:var(--muted)}
+.m-price b{font-family:var(--mono);font-weight:500;color:var(--text);text-align:right;white-space:nowrap}
+.m-price b small{color:var(--dim);font-family:var(--sans);font-weight:400;font-size:12px;margin-left:3px}
+.m-price b.free{color:var(--accent)}
+.fx-note{font-size:13px;color:var(--muted);margin-top:24px;padding:12px 16px;border:1px solid var(--line-2);border-radius:10px;background:rgba(255,255,255,.03)}
+.fx-note + .models-note{margin-top:12px}
 
 /* code */
 .code-wrap{display:grid;grid-template-columns:1fr 1.25fr;gap:56px;align-items:center}
@@ -384,6 +397,9 @@ footer.site .wrap{display:grid;gap:20px}
   .tag{font-size:11.5px;padding:2px 8px}
   .show-all:not([hidden]){display:flex;width:100%;margin-top:12px;height:46px}
   .models-note{margin-top:16px;font-size:12px}
+  .m-price{padding-top:10px}
+  .m-price div{font-size:12.5px;padding:4px 0}
+  .fx-note{margin-top:16px;font-size:12.5px;padding:10px 12px}
 
   .code-wrap{gap:28px}
   .steps{margin-top:22px;gap:14px}
@@ -435,7 +451,7 @@ footer.site .wrap{display:grid;gap:20px}
     <div class="wrap">
       <div class="pill"><i></i><span data-i18n="hero.pill">28 models · OpenAI-compatible API</span></div>
       <h1 data-i18n-html="hero.title">Frontier Chinese AI models. <em>Lower prices.</em> Full transparency.</h1>
-      <p class="lead" data-i18n="hero.lead">DeepSeek, Seedance, Qwen, Kimi, GLM, MiniMax and Seedream — text, image and video models through one API key, up to 76% below official rates.</p>
+      <p class="lead" data-i18n="hero.lead">DeepSeek, Seedance, Qwen, Kimi, GLM, MiniMax and Seedream — text, image and video models through one API key, up to 72% below official rates.</p>
       <div class="cta-row">
         <a href="#contact" class="btn btn-primary btn-cta btn-lg" data-track="cta_hero"><span data-i18n="cta.contact">Contact us</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a href="#models" class="btn btn-ghost" data-i18n="cta.browse">Browse models</a>
@@ -443,7 +459,7 @@ footer.site .wrap{display:grid;gap:20px}
       <div class="stats glass">
         <div class="stat"><b>28</b><span data-i18n="stat.models">models available</span></div>
         <div class="stat"><b>7</b><span data-i18n="stat.vendors">leading AI labs</span></div>
-        <div class="stat"><b>76%</b><span data-i18n="stat.save">max saving vs official</span></div>
+        <div class="stat"><b>72%</b><span data-i18n="stat.save">max saving vs official</span></div>
         <div class="stat"><b>100%</b><span data-i18n="stat.billing">calls itemized</span></div>
       </div>
     </div>
@@ -489,7 +505,7 @@ footer.site .wrap{display:grid;gap:20px}
       <div class="features">
         <article class="feature glass">
           <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h15v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg></div>
-          <h3 data-i18n="f1.title">Up to 76% below official</h3>
+          <h3 data-i18n="f1.title">Up to 72% below official</h3>
           <p data-i18n="f1.body">Bulk-volume rates on every model, passed straight to you. No monthly fee, no minimum commitment — you only pay for what you call.</p>
         </article>
         <article class="feature glass">
@@ -537,6 +553,7 @@ footer.site .wrap{display:grid;gap:20px}
       <div class="tabs" role="tablist" aria-label="Model category" id="tabs"></div>
       <div class="grid" id="grid" role="tabpanel"></div>
       <button class="btn btn-ghost show-all" id="showAll" hidden></button>
+      <p class="fx-note" id="fxNote"></p>
       <p class="models-note" data-i18n="models.note">Model names and logos belong to their respective owners.</p>
     </div>
   </section>
@@ -961,6 +978,9 @@ const MODELS = [
 }
 ];
 
+// Our prices in CNY (already marked up). [label, unit, price] or [label, unit, min, max]
+const PRICES = {"MiniMax-H3":[["refImg","img",0.09],["inVideo","sec",0.23,0.36],["genVideo","sec",0.23,0.36]],"deepseek-v4.1-flash-1017":[["in","mtok",0.52],["out","mtok",2.1]],"deepseek-v4.1-flash":[["in","mtok",0.71],["out","mtok",2.9]],"deepseek-v4-flash-0731":[["in","mtok",0.76],["out","mtok",1.6]],"deepseek-v4-pro-0813":[["in","mtok",2.5],["out","mtok",7.5]],"deepseek-v4-flash":[["in","mtok",0.96],["out","mtok",2.0]],"doubao-seedance-2-5-260628":[["billed","mtok",39.0,65.0]],"doubao-seedream-5-0-pro-260628":[["genImgHi","img",0.61],["genImgLo","img",0.31],["inImg","img",0.021]],"doubao-seedance-2-0-fast-260128":[["billed","mtok",14.0,24.0]],"doubao-seedance-2-0-mini-260615":[["billed","mtok",7.3,12.0]],"doubao-seedream-5-0-260128":[["genImg","img",0.22],["inImg","img",0.0]],"doubao-seedance-2-0-260128":[["billed","mtok",15.0,47.0]],"doubao-seed-2.0-code":[["in","mtok",3.1],["out","mtok",16.0]],"doubao-seed-2.0-pro":[["in","mtok",3.1],["out","mtok",16.0]],"doubao-seed-2.1-pro":[["in","mtok",6.9],["out","mtok",35.0]],"wan3.0-video":[["genVideo","sec",0.29,1.2]],"qwen-image-3.0-pro":[["genImg","img",0.25,0.49],["inImg","img",0.02]],"text-embedding-v4":[["in","mtok",0.49]],"qwen3.8-max":[["in","mtok",9.2],["out","mtok",28.0]],"qwen3.8-flash":[["in","mtok",0.61],["out","mtok",2.1]],"qwen3.7-max":[["in","mtok",9.3],["out","mtok",28.0]],"qwen3.7-plus":[["in","mtok",1.6],["out","mtok",6.3]],"kimi-k3":[["in","mtok",17.0],["out","mtok",83.0]],"minimax-m3":[["in","mtok",1.9],["out","mtok",7.5]],"glm-5.2":[["in","mtok",5.7],["out","mtok",20.0]],"glm-5.3":[["in","mtok",3.8],["out","mtok",14.0]],"hy-image-v3.0":[["genImg","img",0.21]],"deepseek-v4-1-flash-260910":[["in","mtok",1.2],["out","mtok",4.6]]};
+
 const I18N = {
   zh: {
     'nav.models':'模型','nav.integration':'接入','nav.faq':'常见问题','nav.contact':'联系',
@@ -973,10 +993,10 @@ const I18N = {
     'spot.sd.kicker':'视频 · 原生音频','spot.sd.body':'字节跳动的视频模型，适合广告、电商和社媒内容 —— 输入文本、图片、音频、视频，直接出成片。',
     'spot.sd.l1':'Seedance 2.5：单段最长 30 秒，最高 1080P','spot.sd.l2':'最多 50 个参考素材，支持视频编辑与延长','spot.sd.l3':'Fast 与 Mini 版本，适合大批量生产','spot.sd.cta':'获取 Seedance 接入',
     'getAccess':'获取接入 →',
-    'hero.lead':'DeepSeek、Seedance、通义千问、Kimi、GLM、MiniMax、Seedream ——文本、图片、视频模型，一个 API Key 全部调用，最高比官方便宜 76%。',
+    'hero.lead':'DeepSeek、Seedance、通义千问、Kimi、GLM、MiniMax、Seedream ——文本、图片、视频模型，一个 API Key 全部调用，最高比官方便宜 72%。',
     'stat.models':'可用模型','stat.vendors':'头部 AI 厂商','stat.save':'最高比官方省','stat.billing':'调用均有账单记录',
     'why.eyebrow':'为什么选 FlashGate','why.title':'同样的模型，更小的账单，没有隐藏费用。',
-    'f1.title':'最高比官方便宜 76%','f1.body':'每个模型都享受批量折扣价，直接让利给你。无月费、无最低消费，用多少付多少。',
+    'f1.title':'最高比官方便宜 72%','f1.body':'每个模型都享受批量折扣价，直接让利给你。无月费、无最低消费，用多少付多少。',
     'f2.title':'每次调用都有记录','f2.body':'每个请求都记录模型、用量（token 或张数/秒数）和费用，随时可查，账单与日志一一对应。',
     'f3.title':'兼容 OpenAI 接口','f3.body':'继续用你现有的 OpenAI SDK 和代码，只需改 base URL 和 API Key，迁移就完成了。',
     'models.eyebrow':'模型目录','models.title':'一个 Key，调用所有主流中国模型。','models.cta':'申请新模型',
@@ -1006,13 +1026,21 @@ const I18N = {
     'refund.l4':'退款过程中如产生税费或支付渠道费用，将另行计算并从退款金额中扣除。',
     'refund.l5':'申请退款请用账户绑定的邮箱联系我们，并附上你的 API Key ID。',
     'legal.termsT':'服务条款','legal.terms':'API 采用预充值、按调用计费，价格以与你确认的为准。支持小额充值测试，小额充值产生的税费和支付手续费由你自行承担；大额充值可享受税费优惠。推荐优惠以书面确认为准。你需遵守各模型厂商的使用政策。服务可用性取决于上游厂商，如有重大变更我们会提前通知。',
+    'price.in':'输入','price.out':'输出','price.billed':'计费 token','price.refImg':'参考图片','price.inVideo':'输入视频',
+    'price.genVideo':'视频生成','price.genImg':'图片生成','price.genImgHi':'图片生成（1.5K 以上）','price.genImgLo':'图片生成（1.5K 及以下）',
+    'price.inImg':'输入图片','price.free':'免费','unit.mtok':'/ 百万 tokens','unit.img':'/ 张','unit.sec':'/ 秒',
+    'fx.note':'价格单位为人民币，按实际调用量计费。阶梯计费模型显示的是基础档价格；价格区间随分辨率等参数变化。',
     'consent.text':'我们使用 Cookie 统计广告效果。你可以拒绝，网站功能不受影响。','consent.no':'拒绝','consent.yes':'接受'
   },
   en: {
     'tab.all':'All','tab.text':'Text','tab.image':'Image','tab.video':'Video',
     'getAccess':'Get access →','more':'Read more','less':'Show less','showAll':'Show all {n} models',
     'badge.hot':'Popular','badge.new':'New','badge.rec':'Featured',
-    'copied':'Copied','contact.waOpen':'Tap to open chat','contact.waHint':'Tap to copy username'
+    'copied':'Copied','contact.waOpen':'Tap to open chat','contact.waHint':'Tap to copy username',
+    'price.in':'Input','price.out':'Output','price.billed':'Billed tokens','price.refImg':'Reference image','price.inVideo':'Input video',
+    'price.genVideo':'Video output','price.genImg':'Image output','price.genImgHi':'Image output (above 1.5K)','price.genImgLo':'Image output (1.5K and below)',
+    'price.inImg':'Input image','price.free':'Free','unit.mtok':'/ 1M tokens','unit.img':'/ image','unit.sec':'/ second',
+    'fx.note':'Prices in USD are for reference only. They are converted from our CNY prices at ¥1 ≈ ${rate} ({date}), so they move with the exchange rate; the amount you pay is confirmed at top-up. Tiered models show the base tier; ranges depend on resolution and other settings.'
   }
 };
 
@@ -1057,7 +1085,9 @@ const store = {
 
 /* ---------- language ---------- */
 const params = new URLSearchParams(location.search);
-let lang = ['en','zh'].includes(params.get('lang')) ? params.get('lang') : (C.showLangToggle && store.lget('zx_lang')) || C.defaultLang;
+const browserLang = () => /^zh\b/i.test((navigator.languages && navigator.languages[0]) || navigator.language || '') ? 'zh' : 'en';
+let lang = ['en','zh'].includes(params.get('lang')) ? params.get('lang')
+  : (C.showLangToggle && store.lget('zx_lang')) || (C.defaultLang === 'auto' ? browserLang() : C.defaultLang);
 const EN_DEFAULTS = {};
 document.querySelectorAll('[data-i18n]').forEach(el => EN_DEFAULTS[el.dataset.i18n] = el.textContent);
 document.querySelectorAll('[data-i18n-html]').forEach(el => EN_DEFAULTS[el.dataset.i18nHtml] = el.innerHTML);
@@ -1069,12 +1099,43 @@ function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
   document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
   document.title = lang === 'zh' ? 'FlashGate — 更便宜的中国 AI 模型 API | Zolynex Studio' : EN_TITLE;
-  document.querySelector('meta[name=description]').content = lang === 'zh' ? '兼容 OpenAI 接口，调用 DeepSeek、通义千问、Kimi、GLM、MiniMax、Seedance 等模型，最高比官方便宜 76%。' : EN_DESC;
+  document.querySelector('meta[name=description]').content = lang === 'zh' ? '兼容 OpenAI 接口，调用 DeepSeek、通义千问、Kimi、GLM、MiniMax、Seedance 等模型，最高比官方便宜 72%。' : EN_DESC;
   const tog = $('#langToggle');
   tog.hidden = !C.showLangToggle;
   tog.textContent = lang === 'zh' ? 'EN' : '中文';
-  renderTabs(); renderModels(); renderCode(); renderFaq(); renderContact();
+  renderTabs(); renderModels(); renderCode(); renderFaq(); renderContact(); renderFxNote();
 }
+
+/* ---------- prices ---------- */
+let fx = { rate: C.usdPerCny, date: C.usdPerCnyDate };
+// Round up to 2 significant figures, so a converted price is never shown below the real one.
+const ceil2 = x => { if (!x) return 0; const q = 10 ** (Math.floor(Math.log10(x)) - 1); return Number((Math.ceil(x / q - 1e-9) * q).toPrecision(2)); };
+const money = cny => lang === 'zh' ? '¥' + cny : '$' + ceil2(cny * fx.rate);
+function priceRows(m){
+  const rows = PRICES[m.id]; if (!rows) return '';
+  return `<div class="m-price">${rows.map(([k, unit, ...v]) => {
+    const val = v.every(x => x === 0) ? `<b class="free">${t('price.free')}</b>`
+      : `<b>${v.map(money).join(' – ')}<small>${t('unit.' + unit)}</small></b>`;
+    return `<div><span>${t('price.' + k)}</span>${val}</div>`;
+  }).join('')}</div>`;
+}
+function renderFxNote(){
+  $('#fxNote').textContent = t('fx.note').replace('{rate}', ceil2(fx.rate)).replace('{date}', fx.date);
+}
+// Live CNY→USD rate for the reference prices, cached for 12 hours; falls back to the config value.
+(async () => {
+  try {
+    const cached = JSON.parse(store.lget('zx_fx') || 'null');
+    if (cached && Date.now() - cached.at < 12 * 3600e3) { fx = cached; return; }  // set before the first render
+    const r = await fetch('https://open.er-api.com/v6/latest/CNY');
+    const d = await r.json();
+    const rate = d && d.rates && d.rates.USD;
+    if (!(rate > 0.05 && rate < 0.5)) return;
+    fx = { rate, date: new Date(d.time_last_update_unix * 1000).toISOString().slice(0, 10), at: Date.now() };
+    store.lset('zx_fx', JSON.stringify(fx));
+    if (lang !== 'zh') { renderModels(); renderFxNote(); }
+  } catch (e) {}
+})();
 
 /* ---------- flagship spotlight (DeepSeek / Seedance) ---------- */
 const family = m => /^deepseek/i.test(m.id) ? 'deepseek' : /seedance/i.test(m.id) ? 'seedance' : '';
@@ -1115,6 +1176,7 @@ function renderModels(){
       <div class="m-top"><img class="m-icon" src="${ICONS[m.icon]}" alt="" width="40" height="40" loading="lazy">
         <div class="m-id"><div class="m-name" title="${esc(m.id)}">${esc(m.id)}</div><div class="m-vendor">${esc(vendor)}</div></div>${badge}</div>
       ${desc ? `<p class="m-desc">${esc(desc)}</p><button class="more" hidden>${t('more')}</button>` : ''}
+      ${priceRows(m)}
       <div class="m-foot">${tags.map(x => `<span class="tag">${esc(x)}</span>`).join('')}${get}</div>
     </article>`;
   }).join('');
